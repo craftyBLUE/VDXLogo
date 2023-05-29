@@ -1,15 +1,24 @@
+#define RED565 0b1111100000000000
+#define GREEN565 0b0000011111100000
+#define BLUE565 0b0000000000011111
+
 const int W = 320;
 const int H = 240;
 
-double xOrigin = W / 2;
-double yOrigin = H / 2;
+double xCenter = W / 2;
+double yCenter = H / 2;
+
+double precision = 2048;
+double turtleSize = 12;
+
+int screenColor = 0b11111100;
 
 class Turtle {
   private:
     bool drawing = true; //pu pd
-    int pc = 0x0000; //pen color RGB565, note: black or white in the screen buffer
-    double x = xOrigin; //x pos
-    double y = yOrigin; //y pos
+    int pc = 0b00000000; //pen color RGBA2222
+    double x = 0; //x pos
+    double y = 0; //y pos
     double r = 0; //rotation
     bool turtleShown = true; //ht, st
   public:
@@ -42,9 +51,10 @@ class Turtle {
 
 class Inputs {
   public:
-    String input;
-    int iInput;
-    String command;
-    double value;
-    int iValue;
+    String input = "";
+    int iInput = 0;
+    int repcount = -1;
+    //String command;
+    //double value;
+    //int iValue;
 };
