@@ -87,43 +87,49 @@ int printTurtleStatus(Turtle& turtle) {
   Serial.print("y: ");
   Serial.println(turtle.getY());
 
-  Serial.print("r: ");
-  Serial.println(turtle.getR());
+  Serial.print("h: ");
+  Serial.println(turtle.getH());
 
   Serial.println();
   return 0;
 }
 
-void setpos(Turtle& turtle, double newX, double newY, GFXcanvas8& thisCanvas = canvas) {
+void setpos(Turtle& turtle, double newX2, double newY2, canvasRGB& thisCanvas = canvas) {
+  double oldX = turtle.getX() / precision + xCenter;
+  double oldY = turtle.getY() / precision + yCenter;
+  double newX = newX2 / precision + xCenter;
+  double newY = newY2 / precision + yCenter;
   if (turtle.getDrawing()) {
-    thisCanvas.drawLine(turtle.getX() / precision + xCenter, turtle.getY() / precision + yCenter, newX / precision + xCenter, newY / precision + yCenter, turtle.getPc());
+    thisCanvas.r.drawLine(oldX, oldY, newX, newY, turtle.getPc() & RED1);
+    thisCanvas.g.drawLine(oldX, oldY, newX, newY, turtle.getPc() & GREEN1);
+    thisCanvas.b.drawLine(oldX, oldY, newX, newY, turtle.getPc() & BLUE1);
   }
-  turtle.setX(newX);
-  turtle.setY(newY);
+  turtle.setX(newX2);
+  turtle.setY(newY2);
   printTurtleStatus(turtle);
   return;
 }
 
 double lt(Turtle& turtle, double val) {
-  turtle.setR(turtle.getR() + val * (PI / 180));
+  turtle.setH(turtle.getHd() + val);
   printTurtleStatus(turtle);
-  return turtle.getR();
+  return turtle.getH();
 }
 
 double rt(Turtle& turtle, double val) {
   return lt(turtle, val * -1);
 }
 
-double fd(Turtle& turtle, double val, GFXcanvas8& thisCanvas = canvas) {
-  double moveX = val * sin(turtle.getR()) * precision;
-  double moveY = val * cos(turtle.getR()) * precision;
+double fd(Turtle& turtle, double val, canvasRGB& thisCanvas = canvas) {
+  double moveX = val * sin(turtle.getH()) * precision;
+  double moveY = val * cos(turtle.getH()) * precision;
 
   setpos(turtle, turtle.getX() + moveX, turtle.getY() + moveY, thisCanvas);
 
   return sqrt(moveX * moveX + moveY * moveY);
 }
 
-double bk(Turtle& turtle, double val, GFXcanvas8& thisCanvas = canvas) {
+double bk(Turtle& turtle, double val, canvasRGB& thisCanvas = canvas) {
   return fd(turtle, val * -1, thisCanvas);
 }
 
@@ -144,8 +150,8 @@ void st(Turtle& turtle) {
 }
 
 double fd2(Turtle& turtle, double val, GFXcanvas1& thisCanvas = visualTurtleCanvas) {
-  double newX = turtle.getX() + val * sin(turtle.getR()) * precision;
-  double newY = turtle.getY() + val * cos(turtle.getR()) * precision;
+  double newX = turtle.getX() + val * sin(turtle.getH()) * precision;
+  double newY = turtle.getY() + val * cos(turtle.getH()) * precision;
 
   if (turtle.getDrawing()) {
     thisCanvas.drawLine(turtle.getX() / precision + xCenter, turtle.getY() / precision + yCenter, newX / precision + xCenter, newY / precision + yCenter, turtle.getPc());
@@ -167,7 +173,7 @@ void drawVisualTurtle(Turtle& turtle, int tSize) {
   fd2(turtle, tSideLenght, visualTurtleCanvas);
 }
 
-int rgba2222torgb565(int pixelColor) {
+/*int rgba2222torgb565(int pixelColor) {
   int red = pixelColor & 0b11000000;
   int green = pixelColor & 0b00110000;
   int blue = pixelColor & 0b00001100;
@@ -178,7 +184,7 @@ int rgba2222torgb565(int pixelColor) {
   blue = blue / 0b00000100 * BLUE565 / 3;
 
   return red + green + blue;
-}
+}*/
 
 void updateScreen(Turtle& turtle) {
   visualTurtleCanvas.fillScreen(0);
@@ -192,7 +198,12 @@ void updateScreen(Turtle& turtle) {
 
   for (int x = 0; x < W; x++) {
     for (int y = 0; y < H; y++) {
-      int pixelColor = rgba2222torgb565(canvas.getPixel(x, y));
+      //int pixelColor = rgba2222torgb565(canvas.getPixel(x, y));
+      int pixelColor = 0;
+      pixelColor += canvas.r.getPixel(x, y) * RED565;
+      pixelColor += canvas.g.getPixel(x, y) * GREEN565;
+      pixelColor += canvas.b.getPixel(x, y) * BLUE565;
+      
       if (visualTurtleCanvas.getPixel(x, y)) {
         TFT.drawPixel(x, y, (0xFFFF-pixelColor));
       }

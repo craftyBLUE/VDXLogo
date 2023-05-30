@@ -7,7 +7,18 @@
 //screen
 Adafruit_ILI9341 TFT = Adafruit_ILI9341(5, 21, 4); //CS, DC, T_CS
 
-GFXcanvas8 canvas(W, H);
+GFXcanvas1 canvasR(W, H);
+GFXcanvas1 canvasG(W, H);
+GFXcanvas1 canvasB(W, H);
+
+class canvasRGB {
+  public:
+    GFXcanvas1& r = canvasR;
+    GFXcanvas1& g = canvasG;
+    GFXcanvas1& b = canvasB;
+};
+
+canvasRGB canvas;
 GFXcanvas1 visualTurtleCanvas(W, H);
 
 Turtle dummyTurtle;

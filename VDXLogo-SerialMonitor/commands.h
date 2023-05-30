@@ -1,4 +1,4 @@
-Inputs execute(Turtle& turtle, Inputs inputs, GFXcanvas8& thisCanvas = canvas) {
+Inputs execute(Turtle& turtle, Inputs inputs, canvasRGB& thisCanvas = canvas) {
   String command = getStr(inputs);
 
   if (command == "reset") {
@@ -6,9 +6,11 @@ Inputs execute(Turtle& turtle, Inputs inputs, GFXcanvas8& thisCanvas = canvas) {
   }
   if (command == "cs") {
     setpos(turtle, 0, 0);
-    turtle.setR(0);
+    turtle.setH(0);
     lt(turtle, 180);
-    thisCanvas.fillScreen(screenColor);
+    thisCanvas.r.fillScreen(screenColor & RED1);
+    thisCanvas.g.fillScreen(screenColor & GREEN1);
+    thisCanvas.b.fillScreen(screenColor & BLUE1);
   }
   if (command == "pu") {
     pu(turtle);
@@ -32,7 +34,7 @@ Inputs execute(Turtle& turtle, Inputs inputs, GFXcanvas8& thisCanvas = canvas) {
     debugEnabled = 1 - debugEnabled;
   }
   if (command == "setpos") {
-    setpos(turtle, getValue(inputs), getValue(inputs), thisCanvas);
+    setpos(turtle, getValue(inputs) * precision, getValue(inputs) * precision, thisCanvas);
   }
   if (command == "ht") {
     ht(turtle);
@@ -75,6 +77,14 @@ Inputs execute(Turtle& turtle, Inputs inputs, GFXcanvas8& thisCanvas = canvas) {
   }
   if (command == "setsc") {
     screenColor = getValue(inputs);
+  }
+  if (command == "seth") {
+    turtle.setH(getValue(inputs));
+  }
+  if (command == "home") {
+    Inputs inputs2;
+    inputs2.input = "setpos 0 0 seth 0 lt 180";
+    inputs = execute(turtle, inputs2, thisCanvas);
   }
   
   inputs.input = nextCommand(inputs);
