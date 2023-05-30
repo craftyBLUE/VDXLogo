@@ -22,6 +22,24 @@ String getStr(Inputs& inputs) {
 double getValue(Inputs& inputs) {
   double tempValue = 0;
   bool isNegative = 0;
+  
+  if (inputs.input[inputs.iInput] == ':') {
+    inputs.iInput++;
+    String variableName = getStr(inputs);
+    String variableValue = globalVariables.search(variableName);
+    
+    //to do: make better
+    if (variableValue[0] == '-') {
+      isNegative++;
+    }
+
+    tempValue = variableValue.toDouble();
+
+    if (isNegative) return -1 * tempValue;
+  
+    return tempValue;
+  }
+  
   if (inputs.input[inputs.iInput] == '-') {
     isNegative++;
     inputs.iInput++;
@@ -67,6 +85,14 @@ String nextCommand(Inputs& inputs) {
   inputs.iInput = 0;
   return tempString;
 }
+
+void make(Inputs& inputs) {
+  inputs.iInput++; //assume '"'
+  
+  String variableName = getStr(inputs);
+  String variableValue = getInBrackets(inputs, '[', ']');
+  globalVariables.set(variableName, variableValue);
+};
 
 int printTurtleStatus(Turtle& turtle) {
   if (!debugEnabled) return 1;

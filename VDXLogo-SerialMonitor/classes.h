@@ -63,3 +63,57 @@ class Inputs {
     //double value;
     //int iValue;
 };
+
+Inputs makeInput(String input) {
+  Inputs inputs2;
+  inputs2.input = input;
+  return inputs2;
+}
+
+class stringLinkedList {
+  public:
+    String id = "";
+    String value = "";
+    stringLinkedList* next = this;
+
+    
+    stringLinkedList* set(String newId, String newValue) {
+      stringLinkedList* current;
+      current = this;
+
+      while (current -> next != current) {
+        if (current -> id == newId) { //replace old value
+          //Serial.println("LL.set: replaced " + current -> value);
+          current -> value = newValue;
+          return current;
+        }
+
+        current = current -> next;
+        //String debugString = "LL.set: next, " + current -> id + " " + current -> value;
+        //Serial.println(debugString);
+      }
+
+      //Serial.println("LL.set: appending...");
+
+      stringLinkedList* newNode = new stringLinkedList();
+      newNode -> id = newId;
+      newNode -> value = newValue;
+      newNode -> next = newNode;
+      current -> next = newNode; 
+      
+      return newNode;
+    }
+
+    String search(String searchId) {
+      stringLinkedList* current;
+      current = this;
+
+      while (current -> next != current) {
+        current = current -> next;
+        if (current -> id == searchId) {
+          return current -> value;
+        }
+      }
+      return "";
+    }
+};

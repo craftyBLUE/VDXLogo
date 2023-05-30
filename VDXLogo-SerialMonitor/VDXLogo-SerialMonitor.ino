@@ -23,6 +23,9 @@ GFXcanvas1 visualTurtleCanvas(W, H);
 
 Turtle dummyTurtle;
 
+//globalVariables = new stringLinkedList();
+stringLinkedList globalVariables;
+
 #include "functions.h"
 #include "commands.h"
 
@@ -39,6 +42,10 @@ void setup() {
   Serial.println("     by craftyBLUE");
   Serial.println("                   ");
   Serial.println("                   ");
+
+  //initialize global variables
+  globalVariables.set("square50", "repeat 4 [fd 50 rt 90]");
+  globalVariables.set("triangle50left", "repeat 3 [fd 50 rt 90]");
 }
 
 void loop() { //fake loop

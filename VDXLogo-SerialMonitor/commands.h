@@ -51,6 +51,10 @@ Inputs execute(Turtle& turtle, Inputs inputs, canvasRGB& thisCanvas = canvas) {
       inputs2.input = repeatCommands;
       inputs2.repcount = repcount;
 
+      String fakeCommand = "\"repcount " + '[' + String(repcount) + ']';
+      Inputs inputs3 = makeInput(fakeCommand);
+      make(inputs3);
+
       while (inputs2.input != "") {
         inputs2 = execute(turtle, inputs2, thisCanvas);
         //updateScreen(turtle);
@@ -82,9 +86,13 @@ Inputs execute(Turtle& turtle, Inputs inputs, canvasRGB& thisCanvas = canvas) {
     turtle.setH(getValue(inputs));
   }
   if (command == "home") {
-    Inputs inputs2;
-    inputs2.input = "setpos 0 0 seth 0 lt 180";
-    inputs = execute(turtle, inputs2, thisCanvas);
+    inputs = execute(turtle, makeInput("setpos 0 0 seth 0 lt 180"), thisCanvas);
+  }
+  if (command == "run") {
+    inputs = execute(turtle, makeInput(globalVariables.search(getStr(inputs))), thisCanvas);
+  }
+  if (command == "make") {
+    make(inputs);
   }
   
   inputs.input = nextCommand(inputs);
