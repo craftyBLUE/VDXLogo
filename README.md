@@ -1,6 +1,7 @@
 # VDXLogo
 A simple logo program for the microcomputer VIDI X inspired by FMSLogo
 
-![`run makeexample`](https://github.com/craftyBLUE/VXDLogo/makeexample.jpg)
+`run makeexample`
+![`run makeexample`](https://github.com/craftyBLUE/VDXLogo/blob/main/makeexample.jpg?raw=true)
 
 VIDI X website: https://vidi-x.org/
