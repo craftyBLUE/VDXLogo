@@ -23,8 +23,14 @@ GFXcanvas1 visualTurtleCanvas(W, H);
 
 Turtle dummyTurtle;
 
+//debug
+bool debugEnabled = false;
+bool fastTurtle = false;
+
 //globalVariables = new stringLinkedList();
 stringLinkedList globalVariables;
+
+#include "math_parser.h"
 
 #include "functions.h"
 #include "commands.h"
@@ -43,9 +49,14 @@ void setup() {
   Serial.println("                   ");
   Serial.println("                   ");
 
+  //initialize math parser
+  initializeMathParser();
+
   //initialize global variables
   globalVariables.set("square50", "repeat 4 [fd 50 rt 90]");
   globalVariables.set("triangle50left", "repeat 3 [fd 50 rt 90]");
+  globalVariables.set("makeexample", "make \"n [10] make \"d [30] make \"r [3] run makeexample2");
+  globalVariables.set("makeexample2", "repeat :n [repeat :r [fd :d lt (360/:r)] fd :d rt (360/:n) make \"r [(:r+1)]]");
 }
 
 void loop() { //fake loop

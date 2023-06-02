@@ -1,7 +1,3 @@
-//debug
-bool debugEnabled = false;
-bool fastTurtle = false;
-
 bool legalChar(char tempChar) {
   if (tempChar >= 'a' and tempChar <= 'z') return 1;
   if (tempChar >= 'A' and tempChar <= 'Z') return 1;
@@ -19,40 +15,7 @@ String getStr(Inputs& inputs) {
   return tempString;
 }
 
-double getValue(Inputs& inputs) {
-  double tempValue = 0;
-  bool isNegative = 0;
-  
-  if (inputs.input[inputs.iInput] == ':') {
-    inputs.iInput++;
-    String variableName = getStr(inputs);
-    String variableValue = globalVariables.search(variableName);
-    
-    //to do: make better
-    if (variableValue[0] == '-') {
-      isNegative++;
-    }
-
-    tempValue = variableValue.toDouble();
-
-    if (isNegative) return -1 * tempValue;
-  
-    return tempValue;
-  }
-  
-  if (inputs.input[inputs.iInput] == '-') {
-    isNegative++;
-    inputs.iInput++;
-  }
-  
-  tempValue = getStr(inputs).toDouble();
-
-  if (isNegative) return -1 * tempValue;
-  
-  return tempValue;
-}
-
-String getInBrackets(Inputs& inputs, char openBracket = '[', char closedBracket = ']') {
+String getInBrackets(Inputs& inputs, char openBracket = '[', char closedBracket = ']', char endWith = '\\') {
   String tempString = "";
   int depth = 1;
   inputs.iInput++; //assume '['
@@ -72,9 +35,46 @@ String getInBrackets(Inputs& inputs, char openBracket = '[', char closedBracket 
     inputs.iInput++;
   }
   
-  tempString += '\\';
+  tempString += endWith;
   inputs.iInput += 2; //skip '] '
   return tempString;
+}
+
+double getValue(Inputs& inputs) {
+  if (debugEnabled) Serial.println("value requested");
+  double tempValue = 0;
+  bool isNegative = 0;
+
+  //is a variable
+  if (inputs.input[inputs.iInput] == ':') {
+    inputs.iInput++;
+    String variableName = getStr(inputs);
+    String variableValue = globalVariables.search(variableName);
+
+    if (debugEnabled) Serial.println("Variable: \"" + variableValue + "\"");
+
+    tempValue = parseMath(getSubstring(variableValue, 0, -2));
+  
+    return tempValue;
+  }
+
+  //needs to do math
+  if (inputs.input[inputs.iInput] == '(') {
+    tempValue = parseMath(getInBrackets(inputs, '(', ')', ' '));
+    return tempValue;
+  }
+
+  //fallback: get the number
+  if (inputs.input[inputs.iInput] == '-') {
+    isNegative++;
+    inputs.iInput++;
+  }
+  
+  tempValue = getStr(inputs).toDouble();
+
+  if (isNegative) return -1 * tempValue;
+  
+  return tempValue;
 }
 
 String nextCommand(Inputs& inputs) {
@@ -91,6 +91,11 @@ void make(Inputs& inputs) {
   
   String variableName = getStr(inputs);
   String variableValue = getInBrackets(inputs, '[', ']');
+
+  if (variableValue[0] == '(') {
+    variableValue = String(parseMath(getSubstring(variableValue, 0, -2)));
+  }
+  
   globalVariables.set(variableName, variableValue);
 };
 
