@@ -1,3 +1,8 @@
+#pragma once
+
+//forward include #include "commands.h"
+Inputs execute(Turtle& turtle, Inputs inputs, CanvasRGB& thisCanvas);
+
 bool legalChar(char tempChar) {
   if (tempChar >= 'a' and tempChar <= 'z') return 1;
   if (tempChar >= 'A' and tempChar <= 'Z') return 1;
@@ -66,7 +71,7 @@ double getValue(Inputs& inputs) {
 
   //fallback: get the number
   if (inputs.input[inputs.iInput] == '-') {
-    isNegative++;
+    isNegative = true;
     inputs.iInput++;
   }
   
@@ -99,88 +104,27 @@ void make(Inputs& inputs) {
   globalVariables.set(variableName, variableValue);
 };
 
-int printTurtleStatus(Turtle& turtle) {
-  if (!debugEnabled) return 1;
-  Serial.println("Current turtle status: ");
+void repeat(Turtle& turtle, Inputs& inputs, CanvasRGB& thisCanvas = canvas) {
+  int repeatCount = int(getValue(inputs));
+  String repeatCommands = getInBrackets(inputs, '[', ']');
 
-  Serial.print("drawing: ");
-  Serial.println(turtle.getDrawing());
+  for (int repcount = 0; repcount < repeatCount; repcount++) {
+    Inputs inputs2;
+    inputs2.input = repeatCommands;
+    inputs2.repcount = repcount;
 
-  Serial.print("turtleShown: ");
-  Serial.println(turtle.getTurtleShown());
+    String fakeCommand = "\"repcount " + '[' + String(repcount) + ']';
+    Inputs inputs3 = makeInput(fakeCommand);
+    make(inputs3);
 
-  Serial.print("pc: ");
-  Serial.println(turtle.getPc());
-  
-  Serial.print("x: ");
-  Serial.println(turtle.getX());
-
-  Serial.print("y: ");
-  Serial.println(turtle.getY());
-
-  Serial.print("h: ");
-  Serial.println(turtle.getH());
-
-  Serial.println();
-  return 0;
-}
-
-void setpos(Turtle& turtle, double newX2, double newY2, canvasRGB& thisCanvas = canvas) {
-  double oldX = turtle.getX() / precision + xCenter;
-  double oldY = turtle.getY() / precision + yCenter;
-  double newX = newX2 / precision + xCenter;
-  double newY = newY2 / precision + yCenter;
-  if (turtle.getDrawing()) {
-    thisCanvas.r.drawLine(oldX, oldY, newX, newY, turtle.getPc() & RED1);
-    thisCanvas.g.drawLine(oldX, oldY, newX, newY, turtle.getPc() & GREEN1);
-    thisCanvas.b.drawLine(oldX, oldY, newX, newY, turtle.getPc() & BLUE1);
+    while (inputs2.input != "") {
+      inputs2 = execute(turtle, inputs2, thisCanvas);
+      //updateScreen(turtle);
+    }
   }
-  turtle.setX(newX2);
-  turtle.setY(newY2);
-  printTurtleStatus(turtle);
-  return;
 }
 
-double lt(Turtle& turtle, double val) {
-  turtle.setH(turtle.getHd() + val);
-  printTurtleStatus(turtle);
-  return turtle.getH();
-}
-
-double rt(Turtle& turtle, double val) {
-  return lt(turtle, val * -1);
-}
-
-double fd(Turtle& turtle, double val, canvasRGB& thisCanvas = canvas) {
-  double moveX = val * sin(turtle.getH()) * precision;
-  double moveY = val * cos(turtle.getH()) * precision;
-
-  setpos(turtle, turtle.getX() + moveX, turtle.getY() + moveY, thisCanvas);
-
-  return sqrt(moveX * moveX + moveY * moveY);
-}
-
-double bk(Turtle& turtle, double val, canvasRGB& thisCanvas = canvas) {
-  return fd(turtle, val * -1, thisCanvas);
-}
-
-void pu(Turtle& turtle) {
-  turtle.setDrawing(0);
-}
-
-void pd(Turtle& turtle) {
-  turtle.setDrawing(1);
-}
-
-void ht(Turtle& turtle) {
-  turtle.setTurtleShown(0);
-}
-
-void st(Turtle& turtle) {
-  turtle.setTurtleShown(1);
-}
-
-double fd2(Turtle& turtle, double val, GFXcanvas1& thisCanvas = visualTurtleCanvas) {
+/*double fd2(Turtle& turtle, double val, GFXcanvas1& thisCanvas = visualTurtleCanvas) {
   double newX = turtle.getX() + val * sin(turtle.getH()) * precision;
   double newY = turtle.getY() + val * cos(turtle.getH()) * precision;
 
@@ -191,52 +135,45 @@ double fd2(Turtle& turtle, double val, GFXcanvas1& thisCanvas = visualTurtleCanv
   turtle.setY(newY);
 
   return 1;
+}*/
+
+int rgb111ToRgb565(int color, int dimmer = 1) {
+  return ((color & RED1) * RED565) / dimmer + ((color & GREEN1) * GREEN565) / dimmer + ((color & BLUE1) * BLUE565) / dimmer;
 }
 
 void drawVisualTurtle(Turtle& turtle, int tSize) {
   int tSideLenght = sqrt(tSize * tSize / 2);
-  lt(turtle, 90);
-  fd2(turtle, tSize / 2, visualTurtleCanvas);
-  fd2(turtle, tSize * -1, visualTurtleCanvas);
-  rt(turtle, 45);
-  fd2(turtle, tSideLenght, visualTurtleCanvas);
-  lt(turtle, 90);
-  fd2(turtle, tSideLenght, visualTurtleCanvas);
+  turtle.lt(90);
+  turtle.fd(tSize / 2);
+  turtle.fd(tSize * -1);
+  turtle.rt(45);
+  turtle.fd(tSideLenght);
+  turtle.lt(90);
+  turtle.fd(tSideLenght);
 }
 
-/*int rgba2222torgb565(int pixelColor) {
-  int red = pixelColor & 0b11000000;
-  int green = pixelColor & 0b00110000;
-  int blue = pixelColor & 0b00001100;
-  int alpha = pixelColor & 0b00000011;
-
-  red = red / 0b01000000 * RED565 / 3;
-  green = green / 0b00010000 * GREEN565 / 3;
-  blue = blue / 0b00000100 * BLUE565 / 3;
-
-  return red + green + blue;
-}*/
-
 void updateScreen(Turtle& turtle) {
-  visualTurtleCanvas.fillScreen(0);
-  Turtle visualTurtle;
+  canvasT.fillScreen(0);
+  //Turtle visualTurtle(visualTurtleCanvas);
   visualTurtle = turtle;
-  visualTurtle.setPc(0xFFFF);
-
+  
   if (visualTurtle.getTurtleShown()) {
+    visualTurtle.setCanvas(visualTurtleCanvas);
+    visualTurtle.setPc(0b111);
     drawVisualTurtle(visualTurtle, turtleSize);
   }
-
+  
+  int tint = rgb111ToRgb565(turtle.getPc(), 1);
   for (int x = 0; x < W; x++) {
     for (int y = 0; y < H; y++) {
-      //int pixelColor = rgba2222torgb565(canvas.getPixel(x, y));
       int pixelColor = 0;
-      pixelColor += canvas.r.getPixel(x, y) * RED565;
-      pixelColor += canvas.g.getPixel(x, y) * GREEN565;
-      pixelColor += canvas.b.getPixel(x, y) * BLUE565;
+      pixelColor += (*canvas.r).getPixel(x, y) * RED565;
+      pixelColor += (*canvas.g).getPixel(x, y) * GREEN565;
+      pixelColor += (*canvas.b).getPixel(x, y) * BLUE565;
       
-      if (visualTurtleCanvas.getPixel(x, y)) {
-        TFT.drawPixel(x, y, (0xFFFF-pixelColor));
+      if (canvasT.getPixel(x, y)) { //turtle canvas
+        //TFT.drawPixel(x, y, (0xFFFF-pixelColor));
+        TFT.drawPixel(x, y, 0xFFFF - pixelColor xor tint); //tint the turtle a bit
       }
       else {
         TFT.drawPixel(x, y, pixelColor);

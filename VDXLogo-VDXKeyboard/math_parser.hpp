@@ -4,7 +4,7 @@ class Operator {
     int priority;
 };
 
-const int numberOfOperators = 4;
+const int numberOfOperators = 7;
 Operator operators[numberOfOperators]; //op for short
 
 void initializeMathParser() {
@@ -20,6 +20,14 @@ void initializeMathParser() {
   operators[2].priority = pri;
   operators[3].op = '-';
   operators[3].priority = pri;
+
+  pri++;
+  operators[4].op = '=';
+  operators[4].priority = pri;
+  operators[5].op = '<';
+  operators[5].priority = pri;
+  operators[6].op = '>';
+  operators[6].priority = pri;
   
   return;
 }
@@ -79,16 +87,20 @@ int charToInt(char tempChar) {
 }
 
 int stringToInt(String tempString) {
-  int result = 0;
+  return tempString.toInt();
+  
+  /*int result = 0;
   //for (int i = tempString.size() - 1; i >= 0; i--) {
   for (int i = 0; i < tempString.length(); i++) {
     result = result * 10 + charToInt(tempString[i]);
   }
-  return result;
+  return result;*/
 }
 
 double stringToDouble(String tempString) {
-  //to do: add scientific notation
+  return tempString.toDouble();
+  
+  /*//to do: add scientific notation
   int whole = 0;
   int decimal = 0;
   
@@ -103,14 +115,14 @@ double stringToDouble(String tempString) {
   whole = stringToInt(getSubstring(tempString, 0, decimalIndex -1));
   decimal = stringToInt(getSubstring(tempString, decimalIndex + 1, -1));
   
-  return whole + (decimal / pow(10, (tempString.length() - decimalIndex - 1)));
+  return whole + (decimal / pow(10, (tempString.length() - decimalIndex - 1)));*/
 }
 
 double parseMath(String mathInput) {
-  if (debugEnabled) {
+  /*if (debugEnabled) {
     String debugString = "parseMath(\"" + mathInput + "\")";
     Serial.println(debugString);
-  }
+  }*/
   
   if (mathInput == "") return 0;
   
@@ -162,6 +174,12 @@ double parseMath(String mathInput) {
       return value1 + value2;
     case '-':
       return value1 - value2;
+    case '=':
+      return value1 == value2;
+    case '<':
+      return value1 < value2;
+    case '>':
+      return value1 > value2;
   }
   
   //default return value
